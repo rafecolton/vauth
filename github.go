@@ -1,6 +1,7 @@
 package vauth
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
 	"fmt"
@@ -23,9 +24,11 @@ func GitHub(secret string) http.HandlerFunc {
 			http.Error(res, "Not Authorized", http.StatusUnauthorized)
 		}
 
+		req.Body = ioutil.NopCloser(bytes.NewReader(body))
+
 		mac := hmac.New(sha1.New, []byte(secret))
 		mac.Reset()
-		mac.Write([]byte(body))
+		mac.Write(body)
 		calculatedSignature := fmt.Sprintf("sha1=%x", mac.Sum(nil))
 
 		if !SecureCompare(requestSignature, calculatedSignature) {
