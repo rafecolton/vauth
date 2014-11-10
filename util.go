@@ -1,10 +1,14 @@
 package vauth
 
 import (
-	"github.com/martini-contrib/auth"
+	"crypto/subtle"
 )
 
 // SecureCompare performs a constant time compare of two strings to limit timing attacks.
-func SecureCompare(given string, actual string) bool {
-	return auth.SecureCompare(given, actual)
+func SecureCompare(x string, y string) bool {
+	if len(x) != len(y) {
+		return false
+	}
+
+	return subtle.ConstantTimeCompare([]byte(x), []byte(y)) == 1
 }
